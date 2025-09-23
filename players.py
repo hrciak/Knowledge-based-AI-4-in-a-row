@@ -1,12 +1,36 @@
 from __future__ import annotations
 from abc import abstractmethod
 import numpy as np
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
     from heuristics import Heuristic
     from board import Board
-    from treeStructure import TreeStructure
+    #from treeStructure import TreeStructure
 
+
+class Node:
+    """Class defining a node
+    """
+
+    def __init__(self, board: Board, player_id: int, depth: int = 0) -> None:
+        """
+        Args:
+            player_id (int): id of a player, can take values 1 or 2 (0 = empty)
+            board: (fill in later)
+        """
+        self.player_id = player_id
+        self.board = board
+        self.depth = depth
+
+        self.children: List[Node] = []  # create an empty list for the children where each item is a Node object
+        self.parent: Optional[Node] = None #not sure about optional
+        self.value: Optional[float] = None #not sure about optional
+
+
+    def add_child(self, child: Node):
+        child.parent = self                      #the parents and the root are missing
+        self.children.append(child)             #add the child to the children list
+        #print("list", self.children)
 
 class PlayerController:
     """Abstract class defining a player
@@ -21,7 +45,6 @@ class PlayerController:
         self.player_id = player_id
         self.game_n = game_n
         self.heuristic = heuristic
-
 
 
     def get_eval_count(self) -> int:
@@ -54,6 +77,7 @@ class PlayerController:
         """
         pass
 
+
 class MinMaxPlayer(PlayerController):
     """Class for the minmax player using the minmax algorithm
     Inherits from Playercontroller
@@ -70,14 +94,56 @@ class MinMaxPlayer(PlayerController):
         self.depth: int = depth
 
 
+    def min_max(self, node: Node, depth: int, max_player: bool):
+        print("min_max method is reached")
+
+        if self.player_id == 2:
+            max_player = True
+        else:
+            max_player = False
+
+        max_move = 0
+
+        if max_player == True:
+            max_eval = -np.inf
+            for col in range(node.board.width):
+                if node.board.is_valid(col):
+                    new_board = node.board.get_new_board(col, self.player_id) #get a new board
+                    child = Node(new_board, node.depth + 1)  # going one depth deeper, the new child
+                    #evaluated_value: int = self.heuristic.evaluate_board(self.player_id, new_board)
+                    child_value = self.min_max(child, depth - 1, False)
+        else:
+            min_eval = np.inf
+            for col in range(node.board.width):
+                if node.board.is_valid(col):
+                    new_board = node.board.get_new_board(col, self.player_id) #get a new board
+                    child = Node(new_board, node.depth + 1)  # going one depth deeper, the new child
+                    #evaluated_value: int = self.heuristic.evaluate_board(self.player_id, new_board)
+
+                    child_value = self.min_max(child, depth - 1, True)
+
+
+
+
+        return max_move
+
+
+
     def make_move(self, board: Board) -> int:
 
-        from treeStructure import TreeStructure        #this isnt pretty but it works for now
-        tree = TreeStructure(self.player_id, board)    #create the tree
+        place_holder_move = 2   #just a placeholder
 
-        tree.build_tree(self.depth)
+        root_node = Node(board, 0) #depth is 0, get the root node (first node)
 
-        return 0
+        trying_out_move = self.min_max(root_node, self.depth, True)
+
+        print("trying out move is", trying_out_move)
+        print("The best move is", trying_out_move)
+
+        return trying_out_move
+
+
+
 
 class AlphaBetaPlayer(PlayerController):
     """Class for the minmax player using the minmax algorithm with alpha-beta pruning
@@ -107,7 +173,6 @@ class AlphaBetaPlayer(PlayerController):
 
         # TODO: implement minmax algorithm with alpha beta pruning!
         return 0
-
 
 class HumanPlayer(PlayerController):
     """Class for the human player
@@ -167,4 +232,4 @@ class HumanPlayer(PlayerController):
         except AssertionError: # If the input matches a full or non-existing column
             print('Please enter a valid column.\nThis column is either full or doesn\'t exist!', end='\n\n')
             return self.ask_input(board)
-        
+

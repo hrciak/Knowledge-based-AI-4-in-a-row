@@ -142,7 +142,7 @@ def get_players(game_n: int) -> List[PlayerController]:
     human1: PlayerController = HumanPlayer(1, game_n, heuristic1) #this is the human playing as min
     #human2: PlayerController = HumanPlayer(2, game_n, heuristic2) #human2 is no longer playing
 
-    computer1: PlayerController = MinMaxPlayer(2, game_n, 3, heuristic2) #this the computer playing as max,depth is 4 is a placeholder
+    computer1: PlayerController = MinMaxPlayer(2, game_n, 2, heuristic2) #this the computer playing as max,depth is 2 is a placeholder
 
 
     # TODO: Implement other PlayerControllers (MinMaxPlayer and AlphaBetaPlayer)
