@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from heuristics import Heuristic
     from board import Board
 
+#These classes are not in use, this whole tab is not in use atm
 
 class Node:
     """Class defining a node

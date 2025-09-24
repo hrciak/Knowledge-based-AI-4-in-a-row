@@ -1,11 +1,10 @@
 from __future__ import annotations
 from abc import abstractmethod
 import numpy as np
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from heuristics import Heuristic
     from board import Board
-    #from treeStructure import TreeStructure
 
 
 class Node:
@@ -18,19 +17,19 @@ class Node:
             player_id (int): id of a player, can take values 1 or 2 (0 = empty)
             board: (fill in later)
         """
-        self.player_id = player_id
         self.board = board
+        self.player_id = player_id
         self.depth = depth
+        self.children = []  # create an empty list for the children
 
-        self.children: List[Node] = []  # create an empty list for the children where each item is a Node object
-        self.parent: Optional[Node] = None #not sure about optional
-        self.value: Optional[float] = None #not sure about optional
+    def add_child(self, board: Board):
+        for i in range(board.width):                # loop through the number of columns
+            if board.is_valid(i):                   # check if the move is valid
+                child = Board(self)
+                child.play(i)
+                self.children.append((i, child))    # add the child to the children list
+        return self.children                        # returns a list of children
 
-
-    def add_child(self, child: Node):
-        child.parent = self                      #the parents and the root are missing
-        self.children.append(child)             #add the child to the children list
-        #print("list", self.children)
 
 class PlayerController:
     """Abstract class defining a player
@@ -94,55 +93,37 @@ class MinMaxPlayer(PlayerController):
         self.depth: int = depth
 
 
-    def min_max(self, node: Node, depth: int, max_player: bool):
-        print("min_max method is reached")
-
-        if self.player_id == 2:
-            max_player = True
-        else:
-            max_player = False
+    def min_max(self, node: Node, depth: int,  max_player: bool):
+        #print("min_max method is reached")
 
         max_move = 0
+        min_move = 0
 
-        if max_player == True:
+        if max_player:
+            print("the max_player loop is reached")
             max_eval = -np.inf
-            for col in range(node.board.width):
-                if node.board.is_valid(col):
-                    new_board = node.board.get_new_board(col, self.player_id) #get a new board
-                    child = Node(new_board, node.depth + 1)  # going one depth deeper, the new child
-                    #evaluated_value: int = self.heuristic.evaluate_board(self.player_id, new_board)
-                    child_value = self.min_max(child, depth - 1, False)
+            print(node.children)
+
+            for child in node.children:
+                print("Child is", child)
+
         else:
+            print("the min-player loop is reached")
             min_eval = np.inf
-            for col in range(node.board.width):
-                if node.board.is_valid(col):
-                    new_board = node.board.get_new_board(col, self.player_id) #get a new board
-                    child = Node(new_board, node.depth + 1)  # going one depth deeper, the new child
-                    #evaluated_value: int = self.heuristic.evaluate_board(self.player_id, new_board)
 
-                    child_value = self.min_max(child, depth - 1, True)
-
-
-
-
-        return max_move
-
-
+        return 5  # placeholder
 
     def make_move(self, board: Board) -> int:
 
         place_holder_move = 2   #just a placeholder
 
-        root_node = Node(board, 0) #depth is 0, get the root node (first node)
-
+        root_node = Node(board, self.player_id, 0) #depth is 0, get the root node (first node)
         trying_out_move = self.min_max(root_node, self.depth, True)
 
         print("trying out move is", trying_out_move)
         print("The best move is", trying_out_move)
 
         return trying_out_move
-
-
 
 
 class AlphaBetaPlayer(PlayerController):

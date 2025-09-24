@@ -148,7 +148,6 @@ def get_players(game_n: int) -> List[PlayerController]:
     # TODO: Implement other PlayerControllers (MinMaxPlayer and AlphaBetaPlayer)
 
     players: List[PlayerController] = [human1, computer1]
-    #players: List[PlayerController] = [human1, human2] #human2 is no longer playing
 
     assert players[0].player_id in {1, 2}, 'The player_id of the first player must be either 1 or 2'
     assert players[1].player_id in {1, 2}, 'The player_id of the second player must be either 1 or 2'
