@@ -22,6 +22,8 @@ class Node:
         self.depth = depth
         self.children = []  # create an empty list for the children
 
+
+#something is wrong here, the children list ends up being empty
     def add_child(self, board: Board):
         for i in range(board.width):                # loop through the number of columns
             if board.is_valid(i):                   # check if the move is valid
